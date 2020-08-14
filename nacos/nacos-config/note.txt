@@ -1,0 +1,20 @@
+《单环境》
+https://blog.csdn.net/qq_33619378/article/details/96991237
+该配置在nacos-server中操作页面
+Data ID它的定义规则是：${prefix}-${spring.profile.active}.${file-extension}
+prefix 默认为 spring.application.name 的值，也可以通过配置项 spring.cloud.nacos.config.prefix 来配置。
+spring.profile.active 即为当前环境对应的 profile，可以通过配置项 spring.profile.active 来配置。
+file-exetension 为配置内容的数据格式，可以通过配置项 spring.cloud.nacos.config.file-extension 来配置。目前只支持 properties 和 yaml 类型。
+
+配置文件命名问题：
+		Nacos同springcloud-config一样，在项目初始化时，要保证先从配置中心进行配置拉取，拉取配置之后，
+		才能保证项目的正常启动。springboot中配置文件的加载是存在优先级顺序的，bootstrap优先级高于application
+		
+		
+《多环境配置 test dev prod》
+https://blog.csdn.net/qq_33619378/article/details/97017801
+创建两个配置文件(bootstrap-dev bootstrap-test) necos server中创建DataId配置 分别配上服务端口和各自得属性 
+访问时 按配置启动 按端口访问即可获得配置
+
+《多环境下 管理及隔离 配置服务》
+https://blog.csdn.net/qq_33619378/article/details/98634900
