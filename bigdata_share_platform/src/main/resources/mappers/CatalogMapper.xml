@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtinone.datashare.mapper.CatalogMapper">
+
+	<!-- 新增 -->
+	<!-- int addItem(Catalog param); -->
+	<insert id="addItem" useGeneratedKeys="true" keyProperty="idKey" parameterType="com.dtinone.datashare.entity.Catalog">
+		insert into t_catalog
+		<trim suffixOverrides="," prefix="(" suffix=")">
+			<if test="name != null and name !=''">
+				name,
+			</if>
+			<if test="parentId != null and parentId != ''">
+				parent_id,
+			</if>
+			<if test="remark != null and remark != ''">
+				remark,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="remove != null and remove != ''">
+				remove
+			</if>
+		</trim>
+		<trim suffixOverrides="," prefix=" values( " suffix=")">
+			<if test="name != null and name !=''">
+				#{name},
+			</if>
+			<if test="parentId != null and parentId != ''">
+				#{parentId},
+			</if>
+			<if test="remark != null and remark != ''">
+				#{remark},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="remove != null and remove != ''">
+				#{remove}
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 删除 -->
+	<!-- int delItem(List<Integer> idKeys); -->
+	<delete id="delItem" parameterType="java.util.List">
+		delete from t_catalog where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- int changeRemove(@Param("idKeys") List<Integer> idKeys); -->
+	<update id="changeRemove" parameterType="java.util.List">
+		update t_catalog set 
+		<choose>
+			<when test="isOpen == true">
+				remove = 0
+			</when>
+			<otherwise>
+				remove = -1
+			</otherwise>
+		</choose>
+		where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- 修改 -->
+	<!-- int updateItem(Catalog param); -->
+	<update id="updateItem" parameterType="com.dtinone.datashare.entity.Catalog">
+		update t_catalog 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="name != null and name !=''">
+				name = #{name},
+			</if>
+			<if test="parentId != null and parentId != ''">
+				parent_id = #{parentId},
+			</if>
+			<if test="remark != null and remark != ''">
+				remark = #{remark},
+			</if>
+			<if test="remove != null">
+				remove = #{remove},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime}
+			</if>
+		</trim>
+		where id_key = #{idKey}
+	</update>
+	
+	<!-- 查询 -->
+	<!-- List<Catalog> queryInfo(Catalog condition); -->
+	<select id="queryInfo" resultType="com.dtinone.datashare.entity.Catalog">
+		select * from t_catalog
+		<where>
+			<trim suffixOverrides="and">
+				<if test="idKey != null and idKey != ''">
+					id_key = #{idKey} and
+				</if>
+				<if test="name != null and name != ''">
+					name = #{name} and
+				</if>
+				<if test="parentId != null and parentId != ''">
+					parent_id = #{parentId} and
+				</if>
+				<if test="remark != null and remark != ''">
+					remark = #{remark} and
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime} and
+				</if>
+				remove = 0
+			</trim>
+		</where>
+	</select>
+	<!--List<Catalog> queryRoot();-->
+	<select id="queryRoot" resultType="com.dtinone.datashare.entity.Catalog">
+		select * from t_catalog
+		<where>
+			remove = 0 and parent_id is null
+		</where>
+	</select>
+	<!-- List<Catalog> queryInfoAll(); -->
+	<select id="queryInfoAll" resultType="com.dtinone.datashare.entity.Catalog">
+		select * from t_catalog
+		where remove = 0
+	</select>
+</mapper>

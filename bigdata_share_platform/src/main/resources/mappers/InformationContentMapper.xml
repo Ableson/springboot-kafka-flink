@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtinone.datashare.mapper.InformationContentMapper">
+  <resultMap id="BaseResultMap" type="com.dtinone.datashare.entity.InformationContent">
+    <result column="id_key" jdbcType="VARCHAR" property="idKey" />
+    <result column="catagory_code" jdbcType="INTEGER" property="catagoryCode" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="remove" jdbcType="INTEGER" property="remove" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="table_name" jdbcType="VARCHAR" property="tableName" />
+    <result column="provider_first" jdbcType="VARCHAR" property="providerFirst" />
+    <result column="provider_second" jdbcType="VARCHAR" property="providerSecond" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="sheng_he_remark" jdbcType="VARCHAR" property="shengHeRemark" />
+    <result column="xia_jia_remark" jdbcType="VARCHAR" property="xiaJiaRemark" />
+    <result column="network_id" jdbcType="VARCHAR" property="networkId" />
+    <result column="bo_hui_remark" jdbcType="VARCHAR" property="boHuiRemark" />
+    <result column="table_content" jdbcType="VARCHAR" property="tableContent" />
+    <result column="demo_mode_id" jdbcType="INTEGER" property="demoModeId" />
+    <result column="category_relation_code" jdbcType="INTEGER" property="categoryRelationCode"/>
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.dtinone.datashare.entity.InformationContent">
+    <result column="table_content" jdbcType="LONGVARCHAR" property="tableContent" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id_key, catagory_code, create_time, remove, status, table_name, provider_first, provider_second, 
+    remark, sheng_he_remark, xia_jia_remark, network_id, bo_hui_remark,table_content,demo_mode_id,category_relation_code
+  </sql>
+  <sql id="Blob_Column_List">
+    table_content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.dtinone.datashare.entity.InformationContentExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_information_contents
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.dtinone.datashare.entity.InformationContentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from t_information_contents
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.dtinone.datashare.entity.InformationContentExample">
+    delete from t_information_contents
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.dtinone.datashare.entity.InformationContent">
+    insert into t_information_contents (id_key, catagory_code, create_time, 
+      remove, status, table_name, 
+      provider_first, provider_second, remark, 
+      sheng_he_remark, xia_jia_remark, network_id, 
+      bo_hui_remark, table_content, demo_mode_id, category_relation_code)
+    values (#{idKey,jdbcType=VARCHAR}, #{catagoryCode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{remove,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{tableName,jdbcType=VARCHAR}, 
+      #{providerFirst,jdbcType=VARCHAR}, #{providerSecond,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{shengHeRemark,jdbcType=VARCHAR}, #{xiaJiaRemark,jdbcType=VARCHAR}, #{networkId,jdbcType=VARCHAR}, 
+      #{boHuiRemark,jdbcType=VARCHAR}, #{tableContent,jdbcType=LONGVARCHAR}, #{demoModeId,jdbcType=INTEGER}, #{categoryRelationCode,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.dtinone.datashare.entity.InformationContent">
+    insert into t_information_contents
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="idKey != null">
+        id_key,
+      </if>
+      <if test="catagoryCode != null">
+        catagory_code,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="remove != null">
+        remove,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="tableName != null">
+        table_name,
+      </if>
+      <if test="providerFirst != null">
+        provider_first,
+      </if>
+      <if test="providerSecond != null">
+        provider_second,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="shengHeRemark != null">
+        sheng_he_remark,
+      </if>
+      <if test="xiaJiaRemark != null">
+        xia_jia_remark,
+      </if>
+      <if test="networkId != null">
+        network_id,
+      </if>
+      <if test="boHuiRemark != null">
+        bo_hui_remark,
+      </if>
+      <if test="tableContent != null">
+        table_content,
+      </if>
+      <if test="demoModeId != null">
+        demo_mode_id,
+      </if>
+      <if test="categoryRelationCode != null">
+        category_relation_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="idKey != null">
+        #{idKey,jdbcType=VARCHAR},
+      </if>
+      <if test="catagoryCode != null">
+        #{catagoryCode,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remove != null">
+        #{remove,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="tableName != null">
+        #{tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="providerFirst != null">
+        #{providerFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="providerSecond != null">
+        #{providerSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="shengHeRemark != null">
+        #{shengHeRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="xiaJiaRemark != null">
+        #{xiaJiaRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="networkId != null">
+        #{networkId,jdbcType=VARCHAR},
+      </if>
+      <if test="boHuiRemark != null">
+        #{boHuiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="tableContent != null">
+        #{tableContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="demoModeId != null">
+        #{demoModeId,jdbcType=INTEGER},
+      </if>
+      <if test="categoryRelationCode != null">
+        #{categoryRelationCode,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.dtinone.datashare.entity.InformationContentExample" resultType="java.lang.Long">
+    select count(*) from t_information_contents
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update t_information_contents
+    <set>
+      <if test="record.idKey != null">
+        id_key = #{record.idKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.catagoryCode != null">
+        catagory_code = #{record.catagoryCode,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remove != null">
+        remove = #{record.remove,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.tableName != null">
+        table_name = #{record.tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.providerFirst != null">
+        provider_first = #{record.providerFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="record.providerSecond != null">
+        provider_second = #{record.providerSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shengHeRemark != null">
+        sheng_he_remark = #{record.shengHeRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.xiaJiaRemark != null">
+        xia_jia_remark = #{record.xiaJiaRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.networkId != null">
+        network_id = #{record.networkId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.boHuiRemark != null">
+        bo_hui_remark = #{record.boHuiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tableContent != null">
+        table_content = #{record.tableContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.demoModeId != null">
+        demo_mode_id = #{record.demoModeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.categoryRelationCode != null">
+        category_relation_code = #{record.categoryRelationCode,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update t_information_contents
+    set id_key = #{record.idKey,jdbcType=VARCHAR},
+      catagory_code = #{record.catagoryCode,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      remove = #{record.remove,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      table_name = #{record.tableName,jdbcType=VARCHAR},
+      provider_first = #{record.providerFirst,jdbcType=VARCHAR},
+      provider_second = #{record.providerSecond,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      sheng_he_remark = #{record.shengHeRemark,jdbcType=VARCHAR},
+      xia_jia_remark = #{record.xiaJiaRemark,jdbcType=VARCHAR},
+      network_id = #{record.networkId,jdbcType=VARCHAR},
+      bo_hui_remark = #{record.boHuiRemark,jdbcType=VARCHAR},
+      table_content = #{record.tableContent,jdbcType=LONGVARCHAR},
+      demo_mode_id = #{record.demoModeId,jdbcType=INTEGER},
+      category_relation_code = #{record.categoryRelationCode,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update t_information_contents
+    set id_key = #{record.idKey,jdbcType=VARCHAR},
+      catagory_code = #{record.catagoryCode,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      remove = #{record.remove,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      table_name = #{record.tableName,jdbcType=VARCHAR},
+      provider_first = #{record.providerFirst,jdbcType=VARCHAR},
+      provider_second = #{record.providerSecond,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      sheng_he_remark = #{record.shengHeRemark,jdbcType=VARCHAR},
+      xia_jia_remark = #{record.xiaJiaRemark,jdbcType=VARCHAR},
+      network_id = #{record.networkId,jdbcType=VARCHAR},
+      bo_hui_remark = #{record.boHuiRemark,jdbcType=VARCHAR},
+      table_content = #{record.tableContent,jdbcType=LONGVARCHAR},
+      demo_mode_id = #{record.demoModeId,jdbcType=INTEGER},
+    category_relation_code = #{record.categoryRelationCode,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

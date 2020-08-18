@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtinone.datashare.mapper.ListDataContentMapper">
+
+	<!-- 新增 -->
+	<!-- int addItem(ListDataContent param); -->
+	<insert id="addItem" useGeneratedKeys="true" keyProperty="idKey" parameterType="com.dtinone.datashare.entity.ListDataContent">
+		insert into t_list_data_content
+		<trim suffixOverrides="," prefix="(" suffix=")">
+			<if test="parentId != null and parentId != ''">
+				parent_id,
+			</if>
+			<if test="nameZh != null and nameZh !=''">
+				name_zh,
+			</if>
+			<if test="nameEn != null and nameEn != ''">
+				name_en,
+			</if>
+			<if test="columnType != null and columnType != ''">
+				column_type,
+			</if>
+			<if test="columnLength != null">
+				column_length,
+			</if>
+			<if test="accuracy != null">
+				accuracy,
+			</if>
+			<if test="shareType != null and shareType != ''">
+				share_type,
+			</if>
+			<if test="isEnable != null">
+				is_enable,
+			</if>
+			<if test="dept != null and dept != ''">
+				dept,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="remove != null">
+				remove
+			</if>
+		</trim>
+		<trim suffixOverrides="," prefix=" values( " suffix=")">
+			<if test="parentId != null and parentId != ''">
+				#{parentId},
+			</if>
+			<if test="nameZh != null and nameZh !=''">
+				#{nameZh},
+			</if>
+			<if test="nameEn != null and nameEn != ''">
+				#{nameEn},
+			</if>
+			<if test="columnType != null and columnType != ''">
+				#{columnType},
+			</if>
+			<if test="columnLength != null">
+				#{columnLength},
+			</if>
+			<if test="accuracy != null">
+				#{accuracy},
+			</if>
+			<if test="shareType != null and shareType != ''">
+				#{shareType},
+			</if>
+			<if test="isEnable != null">
+				#{isEnable},
+			</if>
+			<if test="dept != null and dept != ''">
+				#{dept},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="remove != null">
+				#{remove}
+			</if>
+		</trim>
+	</insert>
+	<!-- int addItemBatch(List<ListDataContent> param); -->
+	<insert id="addItemBatch" useGeneratedKeys="true" keyProperty="idKey" parameterType="com.dtinone.datashare.entity.ListDataContent">
+		insert into t_list_data_content
+			(parent_id, name_zh, name_en, column_type, column_length, accuracy,
+			share_type, is_enable, dept)
+		values
+		<foreach collection="param" index = "index" item = "item" separator=",">
+				(#{item.parentId}, #{item.nameZh}, #{item.nameEn}, #{item.columnType},
+				#{item.columnLength}, #{item.accuracy}, #{item.shareType}, #{item.isEnable},
+				#{item.dept})
+		</foreach>
+	</insert>
+
+	<!-- 删除 -->
+	<!-- int delItem(@Param("idKeys") List<String> idKeys); -->
+	<delete id="delItem" parameterType="java.util.List">
+		delete from t_list_data_content where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
+
+	<!--int delItemForParentId(@Param("parentId") String parentId);-->
+	<delete id="delItemForParentId">
+		delete from t_list_data_content where parent_id = #{parentId}
+	</delete>
+	
+	<!-- int changeRemove(@Param("idKeys") List<String> idKeys); -->
+	<update id="changeRemove" parameterType="java.util.List">
+		update t_list_data_content set 
+		<choose>
+			<when test="isOpen == true">
+				remove = 0
+			</when>
+			<otherwise>
+				remove = -1
+			</otherwise>
+		</choose>
+		where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- 修改 -->
+	<!-- int updateItem(InformationContent param); -->
+	<update id="updateItem" parameterType="com.dtinone.datashare.entity.ListDataContent">
+		update t_list_data_content 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="parentId != null and parentId !=''">
+				parent_id = #{parentId},
+			</if>
+			<if test="nameZh != null and nameZh !=''">
+				name_zh = #{nameZh},
+			</if>
+			<if test="nameEn != null and nameEn != ''">
+				name_en = #{nameEn},
+			</if>
+			<if test="columnType != null and columnType != ''">
+				column_type = #{columnType},
+			</if>
+			<if test="columnLength != null and columnLength != ''">
+				column_length = #{columnLength},
+			</if>
+			<if test="accuracy != null and accuracy != ''">
+				accuracy = #{accuracy},
+			</if>
+			<if test="shareType != null and shareType != ''">
+				share_type = #{shareType},
+			</if>
+			<if test="isEnable != null and isEnable != ''">
+				is_enable = #{isEnable},
+			</if>
+			<if test="dept != null and dept != ''">
+				dept = #{dept},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="remove != null">
+				#{remove}
+			</if>
+		</trim>
+		where id_key = #{idKey}
+	</update>
+	
+	<!-- 查询 -->
+	<!-- List<ListDataContent> queryInfo(ListDataContent condition); -->
+	<select id="queryInfo" resultType="com.dtinone.datashare.entity.ListDataContent">
+		select * from t_list_data_content
+		<where>
+			<trim suffixOverrides="and">
+				<if test="idKey != null and idKey != ''">
+					id_key = #{idKey} and
+				</if>
+				<if test="parentId != null and parentId != ''">
+					parent_id = #{parentId} and
+				</if>
+				<if test="nameZh != null and nameZh !=''">
+					name_zh = #{nameZh} and
+				</if>
+				<if test="nameEn != null and nameEn != ''">
+					name_en = #{nameEn} and
+				</if>
+				<if test="columnType != null and columnType != ''">
+					column_type = #{columnType} and
+				</if>
+				<if test="columnLength != null and columnLength != ''">
+					column_length = #{columnLength} and
+				</if>
+				<if test="accuracy != null and accuracy != ''">
+					accuracy = #{accuracy} and
+				</if>
+				<if test="shareType != null and shareType != ''">
+					share_type = #{shareType} and
+				</if>
+				<if test="isEnable != null and isEnable != ''">
+					is_enable = #{isEnable} and
+				</if>
+				<if test="dept != null and dept != ''">
+					dept = #{dept} and
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime} and
+				</if>
+				remove = 0
+			</trim>
+		</where>
+	</select>
+
+	<!-- List<ListDataContent> queryInfoForParentId(List<String> parentIds); -->
+	<select id = "queryInfoForParentId" resultType="com.dtinone.datashare.entity.ListDataContent">
+		select * from t_list_data_content
+		where parent_id in 
+		<foreach collection="parentIds" item="item" index="index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+</mapper>

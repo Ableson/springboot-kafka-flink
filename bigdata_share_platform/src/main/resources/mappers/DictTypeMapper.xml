@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtinone.datashare.mapper.DictTypeMapper">
+
+	<!-- 新增 -->
+	<!-- int addItem(DictType param); -->
+	<insert id="addItem" useGeneratedKeys="true" keyProperty="idKey" parameterType="com.dtinone.datashare.entity.DictType">
+		insert into t_dict_type
+		<trim suffixOverrides="," prefix="(" suffix=")">
+			<if test="name != null and name !=''">
+				name,
+			</if>
+			<if test="parentId != null and parentId != ''">
+				parent_id,
+			</if>
+			<if test="createTime != null">
+				createTime,
+			</if>
+			<if test="remove != null and remove != ''">
+				remove
+			</if>
+		</trim>
+		<trim suffixOverrides="," prefix=" values( " suffix=")">
+			<if test="name != null and name !=''">
+				#{name},
+			</if>
+			<if test="parentId != null and parentId != ''">
+				#{parentId},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="remove != null and remove != ''">
+				#{remove}
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 删除 -->
+	<!-- int delItem(List<Integer> idKeys); -->
+	<delete id="delItem" parameterType="java.util.List">
+		delete from t_dict_type where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- int changeRemove(@Param("idKeys") List<Integer> idKeys); -->
+	<update id="changeRemove" parameterType="java.util.List">
+		update t_dict_type set 
+		<choose>
+			<when test="isOpen == true">
+				remove = 0
+			</when>
+			<otherwise>
+				remove = -1
+			</otherwise>
+		</choose>
+		where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- 修改 -->
+	<!-- int updateItem(DictType param); -->
+	<update id="updateItem" parameterType="com.dtinone.datashare.entity.DictType">
+		update t_dict_type 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="name != null and name !=''">
+				name = #{name},
+			</if>
+			<if test="parentId != null and parentId != ''">
+				parent_id = #{parentId},
+			</if>
+			<if test="remove != null">
+				remove = #{remove},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime}
+			</if>
+		</trim>
+		where id_key = #{idKey}
+	</update>
+	
+	<!-- 查询 -->
+	<!-- List<DictType> queryInfo(DictType condition); -->
+	<select id="queryInfo" resultType="com.dtinone.datashare.entity.DictType">
+		select * from t_dict_type
+		<where>
+			<trim suffixOverrides="and">
+				<if test="idKey != null and idKey != ''">
+					id_key = #{idKey} and
+				</if>
+				<if test="name != null and name != ''">
+					name = #{name} and
+				</if>
+				<if test="parentId != null and parentId != ''">
+					parent_id = #{parentId} and
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime} and
+				</if>
+				remove = 0
+			</trim>
+		</where>
+	</select>
+	<!-- List<DictType> queryInfoByName(List<DictType> condition); -->
+	<select id="queryInfoByName" resultType="com.dtinone.datashare.entity.DictType">
+		select * from t_dict_type
+		<where>
+			<trim prefixOverrides ="and">
+				<foreach collection="condition" item="item" index="index" open="parent_id in (" close=")" separator=",">
+					#{item.idKey}
+				</foreach>
+				and remove = 0
+			</trim>
+		</where>
+	</select>
+</mapper>

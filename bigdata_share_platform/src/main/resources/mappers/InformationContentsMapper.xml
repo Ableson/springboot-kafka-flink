@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtinone.datashare.mapper.InformationContentsMapper">
+
+	<!-- 新增 -->
+	<!-- int addItem(InformationContents param); -->
+	<insert id="addItem" useGeneratedKeys="true" keyProperty="idKey" parameterType="com.dtinone.datashare.entity.InformationContents">
+		insert into t_information_contents
+		<trim suffixOverrides="," prefix="(" suffix=")">
+			<if test="idKey != null">
+				id_key,
+			</if>
+			<if test="tableContent != null and tableContent !=''">
+				table_content,
+			</if>
+			<if test="catagoryCode != null">
+				catagory_code,
+			</if>
+			<if test="tableName != null and tableName != ''">
+				table_name,
+			</if>
+			<if test="providerFirst != null and providerFirst != ''">
+				provider_first,
+			</if>
+			<if test="providerSecond != null and providerSecond != ''">
+				provider_second,
+			</if>
+			<if test="status != null and status != ''">
+				status,
+			</if>
+			<if test="demoModeId != null and demoModeId != ''">
+				demo_mode_id,
+			</if>
+			<if test="categoryRelationCode != null">
+				category_relation_code,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="remove != null and remove != ''">
+				remove
+			</if>
+		</trim>
+		<trim suffixOverrides="," prefix=" values( " suffix=")">
+			<if test="idKey != null">
+				#{idKey},
+			</if>
+			<if test="tableContent != null and tableContent !=''">
+				#{tableContent},
+			</if>
+			<if test="catagoryCode != null">
+				#{catagoryCode},
+			</if>
+			<if test="tableName != null and tableName != ''">
+				#{tableName},
+			</if>
+			<if test="providerFirst != null and providerFirst != ''">
+				#{providerFirst},
+			</if>
+			<if test="providerSecond != null and providerSecond != ''">
+				#{providerSecond},
+			</if>
+			<if test="status != null and status != ''">
+				#{status},
+			</if>
+			<if test="demoModeId != null and demoModeId != ''">
+				#{demoModeId},
+			</if>
+			<if test="categoryRelationCode != null">
+				#{categoryRelationCode},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="remove != null and remove != ''">
+				#{remove}
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 删除 -->
+	<!-- int delItem(@Param("idKeys") List<Integer> idKeys); -->
+	<delete id="delItem" parameterType="java.util.List">
+		delete from t_information_contents where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- int changeRemove(@Param("idKeys") List<Integer> idKeys); -->
+	<update id="changeRemove" parameterType="java.util.List">
+		update t_information_contents set 
+		<choose>
+			<when test="isOpen == true">
+				remove = 0
+			</when>
+			<otherwise>
+				remove = -1
+			</otherwise>
+		</choose>
+		where id_key in
+		<foreach collection="idKeys" item="item" index = "index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- 修改 -->
+	<!-- int updateItem(InformationContents param); -->
+	<update id="updateItem" parameterType="com.dtinone.datashare.entity.InformationContents">
+		update t_information_contents 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="tableContent != null and tableContent !=''">
+				table_content = #{tableContent},
+			</if>
+			<if test="catagoryCode != null">
+				catagory_code = #{catagoryCode},
+			</if>
+			<if test="tableName != null and tableName != ''">
+				table_name = #{tableName},
+			</if>
+			<if test="providerFirst != null and providerFirst != ''">
+				provider_first = #{providerFirst},
+			</if>
+			<if test="providerSecond != null and providerSecond != ''">
+				provider_second = #{providerSecond},
+			</if>
+			<if test="status != null and status != ''">
+				status = #{status},
+			</if>
+			<if test="categoryRelationCode != null">
+				category_relation_code = #{categoryRelationCode},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="remove != null">
+				remove = #{remove}
+			</if>
+		</trim>
+		where id_key = #{idKey}
+	</update>
+
+	<!--int updateItemBatch(InformationContents param);-->
+	<update id="updateBatchStatus" parameterType="com.dtinone.datashare.entity.InformationContents">
+		update t_information_contents
+		set status = #{status}
+		<if test="remark != null">
+			, remark = #{remark}
+		</if>
+		where id_key in
+		<foreach collection="idKeys" item = "item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+
+	<!--int updateShengHe(InformationContents param);-->
+	<update id="updateShengHe" parameterType="com.dtinone.datashare.entity.InformationContents">
+		update t_information_contents
+		set status = #{status}
+		<if test="remark != null">
+			, sheng_he_remark = #{remark}
+		</if>
+		where id_key in
+		<foreach collection="idKeys" item = "item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+
+	<!--int updateXiaJia(InformationContents param);-->
+	<update id="updateXiaJia" parameterType="com.dtinone.datashare.entity.InformationContents">
+		update t_information_contents
+		set status = #{status}
+		<if test="remark != null">
+			, xia_jia_remark = #{remark}
+		</if>
+		where id_key in
+		<foreach collection="idKeys" item = "item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+
+	<!--int updateFaBu(InformationContents param);-->
+	<update id="updateFaBu" parameterType="com.dtinone.datashare.entity.InformationContents">
+		update t_information_contents
+		set status = #{status}
+		<if test = "networkId != null">
+			, network_id = #{networkId}
+		</if>
+		<if test="remark != null">
+			, bo_hui_remark = #{remark}
+		</if>
+		where id_key in
+		<foreach collection="idKeys" item = "item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</update>
+
+	<!-- 查询 -->
+	<!-- List<InformationContents> queryInfo(InformationContents condition); -->
+	<select id="queryList" resultType="com.dtinone.datashare.entity.InformationContents">
+		SELECT
+			contents.id_key,
+			contents.table_content,
+			contents.catagory_code,
+			contents.create_time,
+			contents.remove,
+			contents.status,
+			contents.table_name,
+			contents.provider_first,
+			contents.provider_second,
+			count( listData.id_key ) infoCount 
+		FROM
+			t_information_contents contents
+			LEFT JOIN t_list_data_content listData ON listData.id_key = contents.id_key
+		WHERE ( contents.REMOVE = 0 OR contents.REMOVE IS NULL )
+		AND ( listData.REMOVE = 0 OR listData.REMOVE IS NULL ) and
+		<if test="ids != null and ids.size != 0">
+			 and contents.catagory_code in
+			<foreach collection="ids" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="tableName != null and tableName != ''">
+			and contents.table_name like concat('%',#{tableName},'%')
+		</if>
+		<if test="providerFirst != null and providerFirst != ''">
+			and contents.provider_first like concat('%',#{providerFirst},'%')
+		</if>
+		<if test="providerSecond != null and providerSecond != ''">
+			and contents.provider_second like concat('%',#{providerSecond},'%')
+		</if>
+
+		<if test="status != null">
+			and contents.status = #{status}
+		</if>
+		GROUP BY
+			contents.id_key
+	</select>
+	<!--List<InformationContents> queryInfo(InformationContents condition);-->
+	<select id="queryInfo" resultType="com.dtinone.datashare.entity.InformationContents">
+		SELECT
+			contents.id_key,
+			contents.table_content,
+			contents.catagory_code,
+			contents.create_time,
+			contents.remove,
+			contents.status,
+			contents.table_name,
+			contents.provider_first,
+			contents.provider_second,
+			count( listData.id_key ) infoCount
+		FROM
+			t_information_contents contents
+			LEFT JOIN t_list_data_content listData ON listData.parent_id = contents.id_key
+		WHERE ( contents.REMOVE = 0 OR contents.REMOVE IS NULL )
+		AND ( listData.REMOVE = 0 OR listData.REMOVE IS NULL )
+		<if test="ids != null and ids.size != 0">
+			 and contents.catagory_code in
+			<foreach collection="ids" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="condition.tableName != null and condition.tableName != ''">
+			and contents.table_name like concat('%',#{condition.tableName},'%')
+		</if>
+		<if test="condition.providerFirst != null and condition.providerFirst != ''">
+			and contents.provider_first like concat('%',#{condition.providerFirst},'%')
+		</if>
+		<if test="condition.providerSecond != null and condition.providerSecond != ''">
+			and contents.provider_second like concat('%',#{condition.providerSecond},'%')
+		</if>
+		<if test="condition.status != null">
+			and contents.status = #{condition.status}
+		</if>
+		GROUP BY
+			contents.id_key
+	</select>
+	<select id="queryInfoById" resultType="com.dtinone.datashare.entity.InformationContents">
+		select
+			id_key, table_content, catagory_code,
+			create_time, remove, status, table_name,
+			provider_first, provider_second
+		from
+			t_information_contents
+		where id_key = #{condition.idKey}
+	</select>
+	<!--List<InformationContents> queryInfoByCategoryRelationCode(@Param("condition") List<Integer> ids);-->
+	<select id="queryInfoByCategoryRelationCode" resultType="com.dtinone.datashare.entity.InformationContents">
+		select
+			id_key, table_content, catagory_code,
+			create_time, remove, status, table_name,
+			provider_first, provider_second
+		from
+			t_information_contents
+		<where>
+			category_relation_code
+			<foreach collection="condition" item="item" open="in(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+
+</mapper>
