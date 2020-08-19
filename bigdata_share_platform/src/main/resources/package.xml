@@ -22,7 +22,7 @@
             <directory>${project.basedir}</directory>
             <outputDirectory>./</outputDirectory>
             <includes>
-                <!--<include>*.sql</include>-->
+                <include>*.sql</include>
                 <include>*.bat</include>
                 <include>*.md</include>
                 <!--<include>README*</include>-->
