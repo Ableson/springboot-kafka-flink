@@ -1,28 +1,24 @@
 package com.dtinone.datashare.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import com.dtinone.datashare.common.enums.StatusEnum;
+import com.dtinone.datashare.entity.DictType;
+import com.dtinone.datashare.service.IDictType;
+import com.dtinone.datashare.util.RD;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dtinone.datashare.entity.DictType;
-import com.dtinone.datashare.service.IDictType;
-import com.dtinone.datashare.util.RD;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dict")
@@ -55,7 +51,7 @@ public class DictTypeController {
 	}
 	
 	@PostMapping("/query")
-	@ApiOperation(value = "字典查询|下拉选内容获得,具体所属类目详情参阅参数描述")
+	@ApiOperation(value = "字典查询|通用")
 	public RD<?> queryInfo (DictType condition) {
 		
 		return dictService.queryInfo(condition);

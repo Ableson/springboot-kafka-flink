@@ -14,7 +14,10 @@ import com.dtinone.datashare.entity.TableVO;
 import com.dtinone.datashare.util.ControllerHelper;
 import com.dtinone.datashare.util.RD;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,20 +72,28 @@ public class DataSourceController {
 			List<DbSource> dbList = pageInfo.getList();
 			List<DbSourceVO> dataList = new ArrayList<>();
 			dbList.stream().forEach(o->{
-				ResponseObj<List<Table>> tables = dbSourceInterface.getTbales(o.getId());
+				ResponseObj<List<Table>> tables = new ResponseObj<>();
+				try {
+					tables = dbSourceInterface.getTbales(o.getId());
+				} catch (Exception e){
+					log.error("存在错误得数据源ip:"+o.getSourceIp()+" port:"+o.getSourcePort());
+				}
 				DbSourceVO obj = new DbSourceVO();
 				BeanUtils.copyProperties(o,obj);
-				List<Table> tableList = null;
+				List<Table> tableList = new ArrayList<>();
 				try {
-					tableList = ResultDataUtils.getData(tables);
+					if(tables.getData() != null){
+						tableList = ResultDataUtils.getData(tables);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				obj.setTableCount(tableList.size());
 				dataList.add(obj);
 			});
-			return RD.isOk().setData(dataList);
+			return RD.isOk().setData(new PageInfo(dataList));
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error(e.getMessage());
 			return RD.isFail().setMsg("操作失败");
 		}
@@ -126,8 +136,8 @@ public class DataSourceController {
 			@ApiImplicitParam(name = "sourceId", value = "数据源类型id"),
 			@ApiImplicitParam(name = "tableName", value = "数据源名称", required = false),
 			@ApiImplicitParam(name = "tableType", value = "数据表类型", required = false),
-//			@ApiImplicitParam(name = "pageNo", value = "页码", required = false),
-//			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
+//			ApiImplicitParam(name = "pageNo", value = "页码", required = false),
+//			ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
 	})
 	public RD<?> queryTableForDataBase(@RequestParam("sourceId") String sourceId,@RequestParam(value = "tableName",required = false) String tableName,@RequestParam(value = "tableType",required = false) String tableType,
 									   @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
@@ -136,7 +146,10 @@ public class DataSourceController {
 			boolean finalTableNameCondition = checkConditionExists(tableName);
 			boolean finalTableTypeCondition = checkConditionExists(tableType);
 			ResponseObj<List<Table>> tablesResult = dbSourceInterface.getTbales(sourceId);
-			List<Table> tables = ResultDataUtils.getData(tablesResult);
+			List<Table> tables = new ArrayList<>();
+			if(tablesResult.getData() != null){
+				tables = ResultDataUtils.getData(tablesResult);
+			}
 			List<TableVO> dataList = new ArrayList<>();
 			tables.stream().forEach(o -> {
 				String tableNameForDB = o.getTableName();
@@ -184,8 +197,8 @@ public class DataSourceController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "sourceId", value = "数据源ID", type = "String"),
 			@ApiImplicitParam(name = "dbName", value = "数据表名", type = "String"),
-//			@ApiImplicitParam(name = "pageNo", value = "页码", required = false),
-//			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
+//			ApiImplicitParam(name = "pageNo", value = "页码", required = false),
+//			ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
 	})
 	public RD<?> queryTableForColumn(@RequestParam("sourceId") String sourceId, @RequestParam("dbName") String dbName,
 									 @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
@@ -214,9 +227,9 @@ public class DataSourceController {
 	}
 
 	@PostMapping("/check-connection")
-	@ApiOperation(value = "数据源连通性测试")
-	public RD<?> checkConnection(DbSource dbSource){
-		ResponseObj<Boolean> connection = dbSourceInterface.isConnection(dbSource);
+	@ApiOperation(value = "数据源连通性测试-并写入测试记录")
+	public RD<?> checkConnection(String id){
+		ResponseObj<Boolean> connection = dbSourceInterface.testConnection(id);
 		if (connection.isStatus()){
 			log.info("测试连接成功");
 			return RD.isOk().setMsg("连接成功");
@@ -225,6 +238,21 @@ public class DataSourceController {
 		}
 	}
 
+	@PostMapping("/is-connection")
+	@ApiOperation(value = "数据源连通性测试")
+	public RD<?> isConnection(DbSource dbSource){
+		String sourceType = dbSource.getSourceType();
+		String driverName = ControllerHelper.getDriverNameForDbType(sourceType);
+		dbSource.setModularType(DbSourceEnum.MODEL_CURR.getType());
+		dbSource.setDriverName(driverName);
+		ResponseObj<Boolean> connection = dbSourceInterface.isConnection(dbSource);
+		if(connection.getData()){
+			log.info("测试连接成功");
+			return RD.isOk().setMsg("连接成功");
+		}else{
+			return RD.isFail().setMsg("连接失败");
+		}
+	}
 	@ApiOperation("查询连通信测试记录")
 	@PostMapping("/query-connction-record")
 	@ApiImplicitParams({

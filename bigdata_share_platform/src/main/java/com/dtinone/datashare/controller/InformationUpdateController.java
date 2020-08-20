@@ -3,8 +3,6 @@ package com.dtinone.datashare.controller;
 import com.dtinone.datashare.entity.InformationContents;
 import com.dtinone.datashare.service.IInformationContents;
 import com.dtinone.datashare.util.RD;
-import com.dtinone.datashare.util.Utils;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -44,7 +41,7 @@ public class InformationUpdateController {
     }
 
     @PostMapping("/upd-batch")
-    @ApiOperation(value = "信息资源-批量修改各种状态")
+    @ApiOperation(value = "信息资源-批量修改备注")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "idKeys", value = "需要操作的列表idKey"),
             @ApiImplicitParam(name = "status", value = "状态")
@@ -73,7 +70,7 @@ public class InformationUpdateController {
      * @return
      */
     @PostMapping("/upd-status-shenghe")
-    @ApiOperation(value = "信息资源-批量修改各种状态")
+    @ApiOperation(value = "信息资源-批量修改审核备注状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "idKeys", value = "需要操作的列表idKey"),
             @ApiImplicitParam(name = "status", value = "状态"),
@@ -86,7 +83,7 @@ public class InformationUpdateController {
     }
 
     @PostMapping("/upd-status-xiajia")
-    @ApiOperation(value = "信息资源-批量修改各种状态")
+    @ApiOperation(value = "信息资源-批量修改下架备注状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "idKeys", value = "需要操作的列表idKey"),
             @ApiImplicitParam(name = "status", value = "状态"),
@@ -99,7 +96,7 @@ public class InformationUpdateController {
     }
 
     @PostMapping("/upd-status-fabu")
-    @ApiOperation(value = "信息资源-批量修改各种状态")
+    @ApiOperation(value = "信息资源-批量修改发布备注状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "idKeys", value = "需要操作的列表idKey"),
             @ApiImplicitParam(name = "status", value = "状态"),
