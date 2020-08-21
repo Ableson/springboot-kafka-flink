@@ -61,12 +61,14 @@ public class DataSourceController {
 	@PostMapping("/query")
 	@ApiOperation(value = "数据源查询")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "systemId", value = "所属系统ID"),
+			@ApiImplicitParam(name = "systemId", value = "所属系统ID",required = false),
 			@ApiImplicitParam(name = "sourceName", value = "数据源名称", required = false),
 			@ApiImplicitParam(name = "pageNo", value = "页码", required = true),
-			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = true)
+			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = true),
+			@ApiImplicitParam(name = "sourceStatus", value = "状态", required = false)
 	})
-	public RD<?> queryInfo (@RequestParam(value = "systemId") String systemId,@RequestParam(value = "sourceName", required = false) String sourceName, @RequestParam("pageNo") Integer pageNo,@RequestParam("pageSize") Integer pageSize) {
+	public RD<?> queryInfo (@RequestParam(value = "systemId",required = false) String systemId,@RequestParam(value = "sourceName", required = false) String sourceName, @RequestParam(value = "sourceStatus",required = false) String sourceStatus,
+							@RequestParam("pageNo") Integer pageNo,@RequestParam("pageSize") Integer pageSize) {
 		try {
 			ResponseObj<PageInfo<DbSource>> data = dbSourceInterface.getPageBySystemId(systemId, sourceName, DbSourceEnum.MODEL_CURR.getType(), pageNo, pageSize);
 			PageInfo<DbSource> pageInfo = ResultDataUtils.getData(data);
