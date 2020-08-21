@@ -13,6 +13,7 @@ import com.dtinone.datashare.entity.DbSourceVO;
 import com.dtinone.datashare.entity.TableVO;
 import com.dtinone.datashare.util.ControllerHelper;
 import com.dtinone.datashare.util.RD;
+import com.dtinone.datashare.util.Utils;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -38,7 +39,7 @@ public class DataSourceController {
 
 	@Autowired
 	private DbSourceInterface dbSourceInterface;
-	
+
 	@PostMapping("/add-or-upd")
 	@ApiOperation(value = "数据源信息新增/修改")
 	public RD<?> addOrUpdItem (DbSource dbSource) {
@@ -56,7 +57,7 @@ public class DataSourceController {
 			return RD.isFail().setMsg("操作失败");
 		}
 	}
-	
+
 	@PostMapping("/query")
 	@ApiOperation(value = "数据源查询")
 	@ApiImplicitParams({
@@ -91,7 +92,10 @@ public class DataSourceController {
 				obj.setTableCount(tableList.size());
 				dataList.add(obj);
 			});
-			return RD.isOk().setData(new PageInfo(dataList));
+			PageInfo<DbSourceVO> _pageInfo = new PageInfo<>();
+			BeanUtils.copyProperties(pageInfo, _pageInfo);
+			_pageInfo.setList(dataList);
+			return RD.isOk().setData(_pageInfo);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
@@ -136,8 +140,8 @@ public class DataSourceController {
 			@ApiImplicitParam(name = "sourceId", value = "数据源类型id"),
 			@ApiImplicitParam(name = "tableName", value = "数据源名称", required = false),
 			@ApiImplicitParam(name = "tableType", value = "数据表类型", required = false),
-//			ApiImplicitParam(name = "pageNo", value = "页码", required = false),
-//			ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
+			@ApiImplicitParam(name = "pageNo", value = "页码", required = false),
+			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
 	})
 	public RD<?> queryTableForDataBase(@RequestParam("sourceId") String sourceId,@RequestParam(value = "tableName",required = false) String tableName,@RequestParam(value = "tableType",required = false) String tableType,
 									   @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
@@ -145,7 +149,13 @@ public class DataSourceController {
 			//条件是否存在
 			boolean finalTableNameCondition = checkConditionExists(tableName);
 			boolean finalTableTypeCondition = checkConditionExists(tableType);
-			ResponseObj<List<Table>> tablesResult = dbSourceInterface.getTbales(sourceId);
+			ResponseObj<List<Table>> tablesResult = new ResponseObj<>();
+			try {
+				tablesResult = dbSourceInterface.getTbales(sourceId);
+			} catch (Exception e){
+				log.error("存在错误得数据源id:"+sourceId);
+			}
+//			ResponseObj<List<Table>> tablesResult = dbSourceInterface.getTbales(sourceId);
 			List<Table> tables = new ArrayList<>();
 			if(tablesResult.getData() != null){
 				tables = ResultDataUtils.getData(tablesResult);
@@ -177,14 +187,14 @@ public class DataSourceController {
 					handleTableCounts(o, sourceId, tableNameForDB, dataList);
 				}
 			});
-//			PageInfo pageInfo = null;
-//			if(pageNo != null && pageSize != null){
-//				pageInfo = Utils.handlePageInfo(dataList, pageNo, pageSize);
-//			} else {
-//				pageInfo = new PageInfo(dataList);
-//			}
-//			return RD.isOk().setData(pageInfo);
-			return RD.isOk().setData(dataList);
+			PageInfo pageInfo = null;
+			if(pageNo != null && pageSize != null && dataList.size() > 0){
+				pageInfo = Utils.handlePageInfo(dataList, pageNo, pageSize);
+			} else {
+				pageInfo = new PageInfo(dataList);
+			}
+			return RD.isOk().setData(pageInfo);
+//			return RD.isOk().setData(dataList);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			return RD.isFail().setMsg("查询失败");
@@ -196,18 +206,20 @@ public class DataSourceController {
 	@ApiOperation(value = "获得数据表字段columns(前端分页)")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "sourceId", value = "数据源ID", type = "String"),
-			@ApiImplicitParam(name = "dbName", value = "数据表名", type = "String"),
-//			ApiImplicitParam(name = "pageNo", value = "页码", required = false),
-//			ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
+			@ApiImplicitParam(name = "tableName", value = "数据表名", type = "String"),
+			@ApiImplicitParam(name = "pageNo", value = "页码", required = false),
+			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = false)
 	})
-	public RD<?> queryTableForColumn(@RequestParam("sourceId") String sourceId, @RequestParam("dbName") String dbName,
+	public RD<?> queryTableForColumn(@RequestParam("sourceId") String sourceId, @RequestParam("tableName") String tableName,
 									 @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
 		try {
-			ResponseObj<List<Column>> columnsResult = dbSourceInterface.getColumns(sourceId, dbName);
+			ResponseObj<List<Column>> columnsResult = dbSourceInterface.getColumns(sourceId, tableName);
 			List<Column> columns = ResultDataUtils.getData(columnsResult);
-//			PageInfo pageInfo = Utils.handlePageInfo(columns, pageNo, pageSize);
-
-			return RD.isOk().setData(columns);
+			PageInfo pageInfo = new PageInfo(columns);
+			if(columns.size() > 0){
+				pageInfo = Utils.handlePageInfo(columns, pageNo, pageSize);
+			}
+			return RD.isOk().setData(pageInfo);
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
@@ -230,7 +242,7 @@ public class DataSourceController {
 	@ApiOperation(value = "数据源连通性测试-并写入测试记录")
 	public RD<?> checkConnection(String id){
 		ResponseObj<Boolean> connection = dbSourceInterface.testConnection(id);
-		if (connection.isStatus()){
+		if (connection.getData()){
 			log.info("测试连接成功");
 			return RD.isOk().setMsg("连接成功");
 		} else {
