@@ -217,7 +217,11 @@ public class DataSourceController {
 									 @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
 		try {
 			ResponseObj<List<Column>> columnsResult = dbSourceInterface.getColumns(sourceId, tableName);
-			List<Column> columns = ResultDataUtils.getData(columnsResult);
+
+			List<Column> columns = new ArrayList<>();
+			if(columnsResult.getData() != null){
+				columns = ResultDataUtils.getData(columnsResult);
+			}
 			PageInfo pageInfo = new PageInfo(columns);
 			if(columns.size() > 0){
 				pageInfo = Utils.handlePageInfo(columns, pageNo, pageSize);
@@ -303,11 +307,20 @@ public class DataSourceController {
 			return RD.isFail().setMsg("操作失败");
 		}
 	}
-	//通过companyId+sourceType+modelTyer
-	public RD<?> getSourceByCompanyAndSourceType(String companyId,String sourceType){
-
-
-		return null;
+	@PostMapping("/querySource")
+	@ApiOperation("数据源查询-用于从信息系统获取")
+	public RD<?> getListBySystemId(@RequestParam("systemId") String systemId,@RequestParam(value = "sourceType",required = false)String sourceType){
+		ResponseObj<List<DbSource>> listBySystemId = dbSourceInterface.getListBySystemId(systemId, sourceType, DbSourceEnum.MODEL_CURR.getType());
+		List<DbSource> data = null;
+		try {
+			if(listBySystemId.getData() != null){
+				data = ResultDataUtils.getData(listBySystemId);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return RD.isFail().setMsg("获取数据源失败");
+		}
+		return RD.isOk().setData(data);
 	}
 
 	//===================辅助方法===============
