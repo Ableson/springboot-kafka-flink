@@ -107,6 +107,9 @@
         <if test="companyName != null and companyName !=''">
           company_name like concat('%',#{companyName},'%')
         </if>
+        <if test="companyId != null and companyId != ''">
+          company_id = #{companyId}
+        </if>
       </trim>
     </where>
 
