@@ -67,10 +67,10 @@ public class DataSourceController {
 			@ApiImplicitParam(name = "pageSize", value = "每页数据量", required = true),
 			@ApiImplicitParam(name = "sourceStatus", value = "状态", required = false)
 	})
-	public RD<?> queryInfo (@RequestParam(value = "systemId",required = false) String systemId,@RequestParam(value = "sourceName", required = false) String sourceName, @RequestParam(value = "sourceStatus",required = false) String sourceStatus,
+	public RD<?> queryInfo (@RequestParam(value = "systemId",required = false) String systemId,@RequestParam(value = "sourceName", required = false) String sourceName, @RequestParam(value = "sourceStatus",required = false) Integer sourceStatus,
 							@RequestParam("pageNo") Integer pageNo,@RequestParam("pageSize") Integer pageSize) {
 		try {
-			ResponseObj<PageInfo<DbSource>> data = dbSourceInterface.getPageBySystemId(systemId, sourceName, DbSourceEnum.MODEL_CURR.getType(), pageNo, pageSize);
+			ResponseObj<PageInfo<DbSource>> data = dbSourceInterface.getPageBySystemId(systemId, sourceName, sourceStatus, DbSourceEnum.MODEL_CURR.getType(), pageNo, pageSize);
 			PageInfo<DbSource> pageInfo = ResultDataUtils.getData(data);
 			List<DbSource> dbList = pageInfo.getList();
 			List<DbSourceVO> dataList = new ArrayList<>();
@@ -149,6 +149,8 @@ public class DataSourceController {
 									   @RequestParam(value = "pageNo", required = false)Integer pageNo, @RequestParam(value = "pageSize", required = false) Integer pageSize){
 		try {
 			//条件是否存在
+			if(StringUtils.isNotBlank(tableType)) tableType = tableType.toUpperCase();
+			String _tableType = tableType;
 			boolean finalTableNameCondition = checkConditionExists(tableName);
 			boolean finalTableTypeCondition = checkConditionExists(tableType);
 			ResponseObj<List<Table>> tablesResult = new ResponseObj<>();
@@ -157,7 +159,6 @@ public class DataSourceController {
 			} catch (Exception e){
 				log.error("存在错误得数据源id:"+sourceId);
 			}
-//			ResponseObj<List<Table>> tablesResult = dbSourceInterface.getTbales(sourceId);
 			List<Table> tables = new ArrayList<>();
 			if(tablesResult.getData() != null){
 				tables = ResultDataUtils.getData(tablesResult);
@@ -170,7 +171,7 @@ public class DataSourceController {
 					boolean isPass = tableNameForDB.contains(tableName);
 					if(finalTableTypeCondition){
 						//两个条件均有
-						if(isPass && tableTypeForDB.contains(tableType)){
+						if(isPass && tableTypeForDB.contains(_tableType)){
 							handleTableCounts(o, sourceId, tableNameForDB, dataList);
 						}
 					} else {
@@ -181,7 +182,7 @@ public class DataSourceController {
 					}
 				} else if (finalTableTypeCondition){
 					//单一得tableType条件
-					if(tableTypeForDB.contains(tableType)){
+					if(tableTypeForDB.contains(_tableType)){
 						handleTableCounts(o, sourceId,tableTypeForDB,dataList);
 					}
 				} else {
@@ -301,6 +302,12 @@ public class DataSourceController {
 			log.info("删除数据源失败");
 			return RD.isFail().setMsg("操作失败");
 		}
+	}
+	//通过companyId+sourceType+modelTyer
+	public RD<?> getSourceByCompanyAndSourceType(String companyId,String sourceType){
+
+
+		return null;
 	}
 
 	//===================辅助方法===============
