@@ -37,5 +37,5 @@ spring:
       #connection-properties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKaWNv8bdl0VzRZDhspOazg+EtCqR3+2LnlllxSG2QtALDDSTeuHuf+jSyrNAXcwMV0suIvWLlkjBhWzC0Gab6sCAwEAAQ==
       filters: stat,wall
 ribbon:
-  ReadTimeout : 5000
-  ConnectTimeout : 5000
+  ReadTimeout : 3000
+  ConnectTimeout : 3000
