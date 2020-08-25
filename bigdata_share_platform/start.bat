@@ -6,4 +6,5 @@ title sharePlatform
 ::参考https://blog.csdn.net/tb9125256/article/details/83239571
 @echo off
 start javaw -jar sharePlatform.jar > log.file 2>&1
+
 exit
