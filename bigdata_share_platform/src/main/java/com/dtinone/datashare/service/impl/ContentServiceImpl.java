@@ -1,6 +1,5 @@
 package com.dtinone.datashare.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtinone.datashare.entity.Catalog;
 import com.dtinone.datashare.entity.InformationContent;
@@ -13,7 +12,6 @@ import com.dtinone.datashare.service.ContentService;
 import com.dtinone.datashare.util.Utils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.antlr.stringtemplate.language.Cat;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,23 +53,23 @@ public class ContentServiceImpl implements ContentService {
         collect.add(content.getCatagoryCode());
 
         switch (menu){
+            case 0:
             case 1:
-            case 2:
                 criteria.andStatusEqualTo(0);
                 break;
-            case 3:
+            case 2:
                 criteria.andStatusEqualTo(1);
                 break;
-            case 4:
+            case 3:
                 ArrayList<Integer> list = new ArrayList<>();
                 list.add(2);
                 list.add(4);
                 criteria.andStatusIn(list);
                 break;
-            case 5:
+            case 4:
                 criteria.andStatusEqualTo(3);
                 break;
-            case 6:
+            case 5:
 
             default:
                 break;
