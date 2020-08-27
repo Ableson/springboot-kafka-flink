@@ -22,15 +22,24 @@ public class MonitorController {
     @ApiOperation(value = "查询系统监控")
     @GetMapping(value = "/getSysData")
     public RD<?> getSysData() {
-        return RD.isOk().setData(catalogSystemMonitorTaskQueue);
+        try {
+            return RD.isOk().setData(catalogSystemMonitorTaskQueue);
+        } catch (Exception e){
+            return RD.isFail(e);
+        }
     }
 
     @ApiOperation(value = "查询系统实时信息")
     @GetMapping(value = "/getSysInfo")
     public RD<?> getSysInfo(){
-        SM sm = SystemMonitor.getSm();
-        CatalogSystemMonitor catalogSystemMonitor = changeSmToBean(sm);
-        return RD.isOk().setData(catalogSystemMonitor);
+        try {
+            SM sm = SystemMonitor.getSm();
+            CatalogSystemMonitor catalogSystemMonitor = changeSmToBean(sm);
+            return RD.isOk().setData(catalogSystemMonitor);
+        } catch (Exception e){
+            return RD.isFail(e);
+        }
+
     }
     @ApiOperation(value = "查询当前服务状态")
     @GetMapping(value = "/getServiceStatus")

@@ -49,7 +49,7 @@ public class RD<T> implements Serializable {
 
 	public static RD<?> isFail(Throwable e) {
 
-		return isFail().msg(e);
+		return isFail().msg(e).setStatus(false);
 
 	}
 
