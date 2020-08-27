@@ -55,8 +55,7 @@ public class RD<T> implements Serializable {
 
 	public RD<T> msg(Throwable e) {
 
-		this.setMsg(e.toString());
-
+		this.setMsg(e.getMessage());
 		return this;
 
 	}
