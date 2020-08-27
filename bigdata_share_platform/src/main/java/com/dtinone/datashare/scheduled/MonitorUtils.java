@@ -1,5 +1,6 @@
 package com.dtinone.datashare.scheduled;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.cdjiamigu.common.system.model.SM;
 import com.dtinone.datashare.util.Utils;
 
@@ -13,31 +14,26 @@ public class MonitorUtils {
      * @param sm
      */
     public static CatalogSystemMonitor changeSmToBean(SM sm) {
-        CatalogSystemMonitor catalogSystemMonitor = new CatalogSystemMonitor() {{
-            setGuid(Utils.getUID());
-            setDeviceId(sm.getDeviceId());
-            setTotalDiskSpaceGb(sm.getDisk().getTotalDiskSpaceGb());
-            setFreeDiskSpaceGb(sm.getDisk().getFreeDiskSpaceGb());
-            setUsedDiskSpaceGb(sm.getDisk().getUsedDiskSpaceGb());
-            setJvmInitTotalMemorySizeMb(sm.getMem().getJvmInitTotalMemorySizeMb());
-            setJvmMaxMemorySizeMb(sm.getMem().getJvmMaxMemorySizeMb());
-            setJvmUsedMemorySizeMb(sm.getMem().getJvmUsedMemorySizeMb());
-            setTotalMemorySizeGb(sm.getMem().getTotalMemorySizeGb());
-            setUserUsageRate(sm.getMem().getUsedMemoryGb());
-            setFreePhysicalMemorySizeGb(sm.getMem().getFreePhysicalMemorySizeGb());
-            setCores(Double.valueOf(sm.getCpu().getCores()));
-            setSysUsageRate(sm.getCpu().getSysUsageRate());
-            setUserUsageRate(sm.getCpu().getUserUsageRate());
-            setWaitingRate(sm.getCpu().getWaitingRate());
-            setIdleRate(sm.getCpu().getWaitingRate());
-            setOutSpeed(sm.getNet().getOutSpeed());
-            setInSpeed(sm.getNet().getInSpeed());
-
-        }};
-        if (sm.getSmTime() != null) {
-            catalogSystemMonitor.setSmTime(new Date(sm.getSmTime()));
+        try {
+            CatalogSystemMonitor monitor = new CatalogSystemMonitor();
+            if (sm != null &&
+                    sm.getNet() != null &&
+                    sm.getNet().getUacNet() != null &&
+                    sm.getNet().getUacNet() != null) {
+                BeanUtil.copyProperties(monitor, sm.getCpu());
+                BeanUtil.copyProperties(monitor, sm.getDisk());
+                BeanUtil.copyProperties(monitor, sm.getMem());
+                BeanUtil.copyProperties(monitor, sm.getNet());
+                BeanUtil.copyProperties(monitor, sm);
+                monitor.setUacInSpeed(sm.getNet().getUacNet().getInSpeed());
+                monitor.setUacOutSpeed(sm.getNet().getUacNet().getOutSpeed());
+                monitor.setSmTime(new Date(sm.getSmTime()));
+                monitor.setGuid(Utils.getUID());
+            }
+            return monitor;
+        } catch (Exception e) {
+            return null;
         }
-        return catalogSystemMonitor;
     }
 
 
