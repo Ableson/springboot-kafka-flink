@@ -19,34 +19,6 @@ import static com.dtinone.datashare.scheduled.SmTask.catalogSystemMonitorTaskQue
 @Api(value = "/monitor", tags = "监控管理")
 public class MonitorController {
 
-//    @ApiOperation(value = "查询监控列表")
-//    @PostMapping(value = "/getMonitorList")
-//    public ResponseObj<LimitQueue<SipSystemMonitor>> getMonitorList() {
-//        ResponseObj<LimitQueue<SipSystemMonitor>> responseObj = new ResponseObj<>();
-//        try {
-//            responseObj.setData(SystemMonitorTask.SystemMonitorTaskQueue);
-//        } catch (Exception e) {
-//            responseObj.error(e.getMessage());
-//        }
-//        return responseObj;
-//    }
-//
-//    @ApiOperation(value = "查询监控实时详情")
-//    @PostMapping(value = "/getMonitorInfo")
-//    public ResponseObj<SipSystemMonitor> getMonitorInfo() {
-//        ResponseObj<SipSystemMonitor> responseObj = new ResponseObj<>();
-//        try {
-//            LimitQueue<SipSystemMonitor> systemMonitorTaskQueue = SystemMonitorTask.SystemMonitorTaskQueue;
-//            for (SipSystemMonitor sipSystemMonitor : systemMonitorTaskQueue) {
-//                responseObj.setData(sipSystemMonitor);
-//                break;
-//            }
-//        } catch (Exception e) {
-//            responseObj.error(e.getMessage());
-//        }
-//        return responseObj;
-//    }
-
     @ApiOperation(value = "查询系统监控")
     @GetMapping(value = "/getSysData")
     public RD<?> getSysData() {
