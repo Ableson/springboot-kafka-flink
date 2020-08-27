@@ -1,7 +1,10 @@
 package com.dtinone.datashare.util;
 
-import java.io.Serializable;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
+import java.io.Serializable;
+@ApiModel(value = "RD", description = "数据返回实体")
 public class RD<T> implements Serializable {
 
 	private static final long serialVersionUID = 1925941624890792441L;
@@ -12,12 +15,16 @@ public class RD<T> implements Serializable {
 
 	private static final int UN_AUTH_ORIZED = -1;
 
+	@ApiModelProperty(value = "状态")
 	private boolean status = true;
 
+	@ApiModelProperty(value = "数据")
 	public T data;// 服务端数据
 
+	@ApiModelProperty(value = "状态码")
 	public int code = OK;// 状态码
 
+	@ApiModelProperty(value = "消息提示")
 	public String msg = "操作成功";// 描述信息
 
 	public RD<T> code(int code) {

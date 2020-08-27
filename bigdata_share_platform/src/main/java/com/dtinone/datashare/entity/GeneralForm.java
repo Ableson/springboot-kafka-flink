@@ -1,13 +1,13 @@
 package com.dtinone.datashare.entity;
 
-import java.util.List;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-@ApiModel
+@ApiModel("GeneralForm")
 public class GeneralForm {
 
 	@ApiModelProperty("目录分类的code码")

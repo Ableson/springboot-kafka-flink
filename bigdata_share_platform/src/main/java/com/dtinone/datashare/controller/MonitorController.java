@@ -7,7 +7,7 @@ import com.dtinone.datashare.scheduled.CatalogSystemMonitor;
 import com.dtinone.datashare.util.RD;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,20 +48,20 @@ public class MonitorController {
 //    }
 
     @ApiOperation(value = "查询系统监控")
-    @PostMapping(value = "/getSysData")
+    @GetMapping(value = "/getSysData")
     public RD<?> getSysData() {
         return RD.isOk().setData(catalogSystemMonitorTaskQueue);
     }
 
     @ApiOperation(value = "查询系统实时信息")
-    @PostMapping(value = "/getSysInfo")
+    @GetMapping(value = "/getSysInfo")
     public RD<?> getSysInfo(){
         SM sm = SystemMonitor.getSm();
         CatalogSystemMonitor catalogSystemMonitor = changeSmToBean(sm);
         return RD.isOk().setData(catalogSystemMonitor);
     }
     @ApiOperation(value = "查询当前服务状态")
-    @PostMapping(value = "/getServiceStatus")
+    @GetMapping(value = "/getServiceStatus")
     public RD<?> getServiceStatus() {
         return RD.isOk().setData(ConstantCom.TRUE);
     }
