@@ -310,8 +310,8 @@ public class DataSourceController {
 	@PostMapping("/querySource")
 	@ApiOperation("数据源查询-用于从信息系统获取")
 	public RD<?> getListBySystemId(@RequestParam("systemId") String systemId,@RequestParam(value = "sourceType",required = false)String sourceType){
-		ResponseObj<List<DbSource>> listBySystemId = dbSourceInterface.getListBySystemId(systemId, sourceType, DbSourceEnum.MODEL_CURR.getType());
 		List<DbSource> data = null;
+		ResponseObj<List<DbSource>> listBySystemId = dbSourceInterface.getListBySystemId(systemId,null, sourceType, DbSourceEnum.MODEL_CURR.getType());
 		try {
 			if(listBySystemId.getData() != null){
 				data = ResultDataUtils.getData(listBySystemId);

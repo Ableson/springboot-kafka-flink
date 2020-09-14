@@ -1,7 +1,5 @@
 package com.dtinone.datashare.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.cdjiamigu.datasource.feign.interfaces.DbSourceInterface;
 import com.dtinone.datashare.entity.InformationContent;
 import com.dtinone.datashare.entity.InformationContents;
 import com.dtinone.datashare.service.ContentService;
@@ -18,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,18 +61,6 @@ public class InformationContentsController {
 
         return informationService.updateItem(param);
     }
-
-//    @PostMapping("/query")
-//    @ApiOperation(value = "信息系统信息项-分页查询")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "pageSize", value = "每页条数", type = "Integer", required = true)
-//    })
-//    public RD<?> queryInfo(InformationContents condition,
-//                           @RequestParam(value = "pageNo") Integer pageNo,
-//                           @RequestParam(value = "pageSize") Integer pageSize) {
-//
-//        return informationService.queryInfo(condition, pageNo, pageSize);
-//    }
 
     @ApiOperation(value = "信息系统列表")
     @ApiImplicitParams({
