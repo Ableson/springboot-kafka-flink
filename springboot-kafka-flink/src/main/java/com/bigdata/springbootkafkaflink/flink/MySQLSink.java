@@ -34,11 +34,11 @@ public class MySQLSink extends RichSinkFunction<Tuple3<Integer, String, Integer>
         super.invoke(value, context);
         Class.forName(drivername);
 
-        String sql = "replace into user(id,name,age) values(?,?,?)";
+        String sql = "replace into t_user(name,age) values(?,?)";
         preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, value.f0.toString());
-        preparedStatement.setString(2, value.f1.toString());
-        preparedStatement.setString(3, value.f2.toString());
+//        preparedStatement.setString(1, value.f0.toString());
+        preparedStatement.setString(1, value.f1.toString());
+        preparedStatement.setString(2, value.f2.toString());
         preparedStatement.executeUpdate();
         log.info("写入数据成功!");
     }
