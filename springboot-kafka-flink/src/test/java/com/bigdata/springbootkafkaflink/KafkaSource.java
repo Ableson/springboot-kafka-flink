@@ -1,7 +1,8 @@
-package com.bigdata.springbootkafkaflink.flink;
+package com.bigdata.springbootkafkaflink;
 
 import com.alibaba.fastjson.JSON;
 import com.bigdata.springbootkafkaflink.config.ApplicationConfiguration;
+import com.bigdata.springbootkafkaflink.flink.MySQLSinkSingle;
 import com.bigdata.springbootkafkaflink.pojo.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
