@@ -44,12 +44,17 @@ import java.util.Properties;
  * Ingestion Time   摄入时间，事件进入Flink的时间，即将每一个事件在数据源算子的处理时间作为事件时间的时间戳
  * Processing Time  处理时间，根据处理机器的系统时钟决定数据流当前的时间，即事件被处理时当前系统的时间
  *
+ * RichFunction     存在生命周期得概念 open close方法得存在
+ * keyBy            类似于groupBy得作用，对数据进行分流
+ *
  * 使用大致步骤
  * 1.evn.addSource(...);
  * 2.dataStream.map(...);
  * 3.outStream.apply(...);//timeWindowAll->trigger->apply
  * 4.apply.addSink(...);
  * 5.env.execute(...);
+ *
+ * Side OutPut替代split分流-->https://blog.csdn.net/weixin_42642502/article/details/106586255
  */
 @Component
 @Slf4j
@@ -127,13 +132,43 @@ public class MysqlKafkaSource {
         env.setParallelism(1);
         Properties properties = getProperties();
         DataStream<User> messageStream = env.addSource(new FlinkKafkaConsumer<>(properties.getProperty("topic"),new SimpleStringSchema(), properties)).map(string->JSON.parseObject(string,User.class));
+        //=↓=分流=↓=
+        //=↓=分流=↓=
+//        SplitStream<User> split = messageStream.split(user -> {
+//            List<String> list = new ArrayList<>();
+//            if (user.getAge() > 20) {
+//                list.add("大于20");
+//            } else {
+//                list.add("小于20");
+//            }
+//            return list;
+//        });
+//        split.select("小于20").print();
+//        log.info("-------");
+//        split.select("大于20").printToErr();
+        //=↑=分流=↑=
+        //=↑=分流=↑=
         SingleOutputStreamOperator<User> singleOutputStreamOperator = messageStream.flatMap(new FlatMapFunction<User, User>() {
             @Override
             public void flatMap(User user, Collector<User> collector) {
                 collector.collect(user);
             }
         });
+        //keyBy
+        //=↓=分组=↓=
+        //=↓=分组=↓=
+//        SingleOutputStreamOperator<User> sum = singleOutputStreamOperator.keyBy("age").reduce((o1,o2)->{
+//            log.info(o1+"===="+o2);
+//            User user = new User();
+//            user.setAge(o1.getAge()+o2.getAge());
+//            user.setName(o2.getName());
+//            log.info(">>:"+user);
+//            return user;
+//        });
+        //=↑=分组=↑=singleOutputStreamOperator需要改为sum
+        //=↑=分组=↑=
         //对前10s内的输入数据流超过10条，提交一次
+//        AllWindowedStream<User, TimeWindow> trigger = singleOutputStreamOperator.keyBy("age").sum("age").timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
         AllWindowedStream<User, TimeWindow> trigger = singleOutputStreamOperator.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
         SingleOutputStreamOperator<List<User>> apply = trigger.apply(new AllWindowFunction<User, List<User>, TimeWindow>() {
             @Override
