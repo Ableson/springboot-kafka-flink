@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.AllWindowedStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.datastream.SplitStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
@@ -31,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -72,7 +74,8 @@ public class MysqlKafkaSource {
 
 //        handlerSingle();
 //        handlerMulti();
-        handlerMultiTrigger();
+//        handlerMultiTrigger();
+        handlerMultiKeyBy();
     }
 
     private void handlerSingle(){
@@ -127,6 +130,9 @@ public class MysqlKafkaSource {
         startTask(env);
     }
 
+    /**
+     * 10s最多收集3个提交一次
+     */
     private void handlerMultiTrigger(){
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -184,7 +190,67 @@ public class MysqlKafkaSource {
         apply.addSink(new MysqlSinkMultiparty());
         //启动任务
         startTask(env);
+    }
 
+    /**
+     * 分流/分组统计数据 按age分组累加
+     */
+    private void handlerMultiKeyBy(){
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        Properties properties = getProperties();
+        DataStream<User> messageStream = env.addSource(new FlinkKafkaConsumer<>(properties.getProperty("topic"),new SimpleStringSchema(), properties)).map(string->JSON.parseObject(string,User.class));
+        //=↓=分流=↓=
+        //=↓=分流=↓=
+        SplitStream<User> split = messageStream.split(user -> {
+            List<String> list = new ArrayList<>();
+            if (user.getAge() > 20) {
+                list.add("大于20");
+            } else {
+                list.add("小于20");
+            }
+            return list;
+        });
+        split.select("小于20").print();
+        log.info("-------");
+        split.select("大于20").printToErr();
+        //=↑=分流=↑=
+        //=↑=分流=↑=
+        SingleOutputStreamOperator<User> singleOutputStreamOperator = messageStream.flatMap(new FlatMapFunction<User, User>() {
+            @Override
+            public void flatMap(User user, Collector<User> collector) {
+                collector.collect(user);
+            }
+        });
+        //keyBy
+        //=↓=分组=↓=会按照年龄 累加并使用新数据/后者数据得name
+        //=↓=分组=↓=
+        SingleOutputStreamOperator<User> reduce = singleOutputStreamOperator.keyBy("age").reduce((o1,o2)->{
+            log.info(o1+"===="+o2);
+            User user = new User();
+            user.setAge(o1.getAge()+o2.getAge());
+            user.setName(o2.getName());
+            log.info(">>:"+user);
+            return user;
+        });
+        //=↑=分组=↑=
+        //=↑=分组=↑=
+        //对前10s内的输入数据流超过10条，提交一次 trigger = singleOutputStreamOperator.keyBy("age").sum("age").timeWindowAll(Time.seconds(10))
+        AllWindowedStream<User, TimeWindow> trigger = reduce.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
+        SingleOutputStreamOperator<List<User>> apply = trigger.apply(new AllWindowFunction<User, List<User>, TimeWindow>() {
+            @Override
+            public void apply(TimeWindow timeWindow, Iterable<User> iterable, Collector<List<User>> collector) {
+                List<User> users = Lists.newArrayList(iterable);
+                if(users.size() > 0){
+                    log.info("10秒收集到得条数：" + users.size());
+                    collector.collect(users);
+                }
+            }
+        });
+        //写入数据库
+        apply.addSink(new MysqlSinkMultiparty());
+        //启动任务
+        startTask(env);
     }
     private void startTask(StreamExecutionEnvironment env) {
         new Thread(() -> {
