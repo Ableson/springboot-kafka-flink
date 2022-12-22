@@ -1,4 +1,3 @@
-https://www.cnblogs.com/javazhiyin/p/13597319.html
 #Flink从入门到入土（详细教程）
 和其他所有的计算框架一样，flink也有一些基础的开发步骤以及基础，核心的API，从开发步骤的角度来讲，主要分为四大部分
 
@@ -548,3 +547,5 @@ return this.addSink(printFunction).name("Print to Std. Out");
 }
 ```
 官方提供了一部分的框架的sink。除此以外，需要用户自定义实现sink
+
+https://www.cnblogs.com/javazhiyin/p/13597319.html
