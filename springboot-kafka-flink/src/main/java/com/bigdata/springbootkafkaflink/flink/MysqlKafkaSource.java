@@ -2,14 +2,18 @@ package com.bigdata.springbootkafkaflink.flink;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.bigdata.springbootkafkaflink.flinkTrigger.CountWithTimeoutTrigger;
 import com.bigdata.springbootkafkaflink.pojo.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.calcite.shaded.com.google.common.collect.Lists;
+import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.datastream.AllWindowedStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -30,6 +34,23 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * FlatMap算子：将数据流一行按逻辑或规则拆分成0行或多行输出
+ * 数据流flatMap -> FlatMapFunction 可以单独一个实现类，也可匿名内部类得方式
+ * 数据流map --> MapFunction
+ *
+ * TimeCharacteristic --> https://blog.csdn.net/MyySophia/article/details/120706790
+ * Event Time       事件时间，事件(Event)本身的时间，即数据流中事件实际发生的时间
+ * Ingestion Time   摄入时间，事件进入Flink的时间，即将每一个事件在数据源算子的处理时间作为事件时间的时间戳
+ * Processing Time  处理时间，根据处理机器的系统时钟决定数据流当前的时间，即事件被处理时当前系统的时间
+ *
+ * 使用大致步骤
+ * 1.evn.addSource(...);
+ * 2.dataStream.map(...);
+ * 3.outStream.apply(...);//timeWindowAll->trigger->apply
+ * 4.apply.addSink(...);
+ * 5.env.execute(...);
+ */
 @Component
 @Slf4j
 public class MysqlKafkaSource {
@@ -98,6 +119,36 @@ public class MysqlKafkaSource {
         apply.addSink(new MysqlSinkMultiparty());
         //启动任务
         startTask(env);
+    }
+
+    private void handlerMultiTrigger(){
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        Properties properties = getProperties();
+        DataStream<User> messageStream = env.addSource(new FlinkKafkaConsumer<>(properties.getProperty("topic"),new SimpleStringSchema(), properties)).map(string->JSON.parseObject(string,User.class));
+        SingleOutputStreamOperator<User> singleOutputStreamOperator = messageStream.flatMap(new FlatMapFunction<User, User>() {
+            @Override
+            public void flatMap(User user, Collector<User> collector) {
+                collector.collect(user);
+            }
+        });
+        //对前10s内的输入数据流超过10条，提交一次
+        AllWindowedStream<User, TimeWindow> trigger = singleOutputStreamOperator.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(10, TimeCharacteristic.ProcessingTime));
+        SingleOutputStreamOperator<List<User>> apply = trigger.apply(new AllWindowFunction<User, List<User>, TimeWindow>() {
+            @Override
+            public void apply(TimeWindow timeWindow, Iterable<User> iterable, Collector<List<User>> collector) {
+                List<User> users = Lists.newArrayList(iterable);
+                if(users.size() > 0){
+                    log.info("10秒收集到得条数：" + users.size());
+                    collector.collect(users);
+                }
+            }
+        });
+        //写入数据库
+        apply.addSink(new MysqlSinkMultiparty());
+        //启动任务
+        startTask(env);
+
     }
     private void startTask(StreamExecutionEnvironment env) {
         new Thread(() -> {
