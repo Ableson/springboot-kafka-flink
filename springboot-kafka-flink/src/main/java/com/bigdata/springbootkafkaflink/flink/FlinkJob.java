@@ -55,7 +55,7 @@ public class FlinkJob {
             }
         });
         //传入数据库
-        sourceStreamTra.addSink(new MySQLSink());
+        sourceStreamTra.addSink(new MySQLSinkSingle());
         try {
             env.execute("Flink add kafka data source");
         } catch (Exception e) {

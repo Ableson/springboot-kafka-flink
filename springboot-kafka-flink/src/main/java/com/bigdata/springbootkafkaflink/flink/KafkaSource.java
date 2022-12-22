@@ -75,7 +75,7 @@ public class KafkaSource {
         });
 
         //写入数据库
-        sourceStreamTra.addSink(new MySQLSink());
+        sourceStreamTra.addSink(new MySQLSinkSingle());
         env.execute("Flink add kafka data source");
 
     }

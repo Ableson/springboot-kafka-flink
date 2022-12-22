@@ -10,9 +10,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
+/**
+ *单条处理
+ */
 @Component
 @Slf4j
-public class MySQLSink extends RichSinkFunction<Tuple3<Integer, String, Integer>> {
+public class MySQLSinkSingle extends RichSinkFunction<Tuple3<Integer, String, Integer>> {
 
     private static final long serialVersionUID = 1L;
     private Connection connection;
@@ -24,21 +27,18 @@ public class MySQLSink extends RichSinkFunction<Tuple3<Integer, String, Integer>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        // super.open(parameters);
+        super.open(parameters);
         log.info("获取数据库连接");
         connection = DriverManager.getConnection(dburl, username, password);
+        String sql = "replace into t_user(name,age) values(?,?);";
+        preparedStatement = connection.prepareStatement(sql);
     }
 
     @Override
     public void invoke(Tuple3<Integer, String, Integer> value, Context context) throws Exception {
         super.invoke(value, context);
-        Class.forName(drivername);
-
-        String sql = "replace into t_user(name,age) values(?,?)";
-        preparedStatement = connection.prepareStatement(sql);
-//        preparedStatement.setString(1, value.f0.toString());
-        preparedStatement.setString(1, value.f1.toString());
-        preparedStatement.setString(2, value.f2.toString());
+        preparedStatement.setString(1, value.f1);
+        preparedStatement.setInt(2, value.f2);
         preparedStatement.executeUpdate();
         log.info("写入数据成功!");
     }
