@@ -11,7 +11,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -39,7 +39,7 @@ public class FlinkJob {
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        FlinkKafkaConsumer010<String> consumer = new FlinkKafkaConsumer010<>("TEST_01", new SimpleStringSchema(), props);
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("TEST_01", new SimpleStringSchema(), props);
         DataStreamSource<String> dataStreamSource = env.addSource(consumer).setParallelism(1);
         DataStream<Tuple3<Integer, String, Integer>> sourceStreamTra = dataStreamSource.filter(new FilterFunction<String>() {
             @Override

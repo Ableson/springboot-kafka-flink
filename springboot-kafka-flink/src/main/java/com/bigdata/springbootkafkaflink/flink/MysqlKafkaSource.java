@@ -66,7 +66,8 @@ public class MysqlKafkaSource {
     public void execute(){
 
 //        handlerSingle();
-        handlerMulti();
+//        handlerMulti();
+        handlerMultiTrigger();
     }
 
     private void handlerSingle(){
@@ -133,7 +134,7 @@ public class MysqlKafkaSource {
             }
         });
         //对前10s内的输入数据流超过10条，提交一次
-        AllWindowedStream<User, TimeWindow> trigger = singleOutputStreamOperator.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(10, TimeCharacteristic.ProcessingTime));
+        AllWindowedStream<User, TimeWindow> trigger = singleOutputStreamOperator.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
         SingleOutputStreamOperator<List<User>> apply = trigger.apply(new AllWindowFunction<User, List<User>, TimeWindow>() {
             @Override
             public void apply(TimeWindow timeWindow, Iterable<User> iterable, Collector<List<User>> collector) {
