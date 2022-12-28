@@ -19,19 +19,16 @@
         <springboot.version>1.5.9.RELEASE</springboot.version>
         <mybatis-spring-boot>1.2.0</mybatis-spring-boot>
         <mysql-connector>5.1.48</mysql-connector>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.15</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <kafka.version>1.0.0</kafka.version>
         <storm.version>2.4.0</storm.version>
         <fastjson.version>1.2.41</fastjson.version>
         <druid>1.1.8</druid>
-        <flink.version>1.8.1</flink.version>
+        <flink.version>1.14.4</flink.version>
+        <start-class>com.bigdata.springbootkafkaflink.SpringbootKafkaFlinkApplication</start-class>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
         <!--web-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,8 +36,8 @@
             <version>${springboot.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-to-slf4j</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -64,11 +61,11 @@
             <version>${mysql-connector}</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>com.alibaba.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
             <version>1.1.1</version>
-        </dependency>
+        </dependency>-->
         <!--fastjson 相关jar -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -87,57 +84,23 @@
             <scope>test</scope>
         </dependency>
 
-        <!--引入flink 相关依赖-->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-java -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-runtime -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime_2.12</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.12</artifactId>
             <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.11</artifactId>
             <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table_2.11</artifactId>
-            <version>1.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-jdbc_2.11</artifactId>
-            <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka_2.11</artifactId>
             <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-shaded-guava</artifactId>
-            <version>18.0-5.0</version>
         </dependency>
         <!--Kafka-->
         <dependency>
@@ -159,11 +122,6 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.12</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.22</version>
@@ -171,13 +129,6 @@
     </dependencies>
 
     <build>
-        <!--<plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>-->
-
         <plugins>
             <!-- 编译插件 -->
             <plugin>
@@ -188,13 +139,22 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <!--  spring boot 项目打包
-             <plugin>
-               <groupId>org.springframework.boot</groupId>
-               <artifactId>spring-boot-maven-plugin</artifactId>
-             </plugin>-->
-            <!-- Flink打包方式一 -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <!-- 参考flink官网也把这个排除 -->
+                            <exclude>com.google.code.findbugs:jsr305</exclude>
+                            <exclude>ch.qos.logback:*</exclude>
+                            <exclude>org.slf4j:*</exclude>
+                        </excludes>
+                    </artifactSet>
+                </configuration>
+            </plugin>
+            <!-- Flink打包方式一 -->
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
@@ -204,7 +164,7 @@
                             <mainClass>com.bigdata.springbootkafkaflink.SpringbootKafkaFlinkApplication</mainClass>
                         </manifest>
                     </archive>
-                    <!-- 打包依赖 -->
+                    &lt;!&ndash; 打包依赖 &ndash;&gt;
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -218,9 +178,9 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- flink打包方式二
-            <plugin>
+            </plugin>-->
+             <!--flink打包方式二-->
+            <!--<plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-shade-plugin</artifactId>
               <version>3.3.0</version>
@@ -268,22 +228,21 @@
                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                       <transformer
                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>com.easylinkin.dc.olap.JianGongStopCarTask</mainClass>
+                        <mainClass>com.bigdata.springbootkafkaflink.SpringbootKafkaFlinkApplication</mainClass>
                       </transformer>
                     </transformers>
                   </configuration>
                 </execution>
               </executions>
-            </plugin>
-            -->
-            <!-- flink打包方式三
-            <plugin>
+            </plugin>-->
+             <!--flink打包方式三-->
+            <!--<plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-jar-plugin</artifactId>
               <configuration>
                 <archive>
                   <manifest>
-                    <mainClass>com.easylinkin.dc.olap.JianGongStopCarTask</mainClass>
+                    <mainClass>com.bigdata.springbootkafkaflink.SpringbootKafkaFlinkApplication</mainClass>
                     <useUniqueVersions>false</useUniqueVersions>
                     <addClasspath>true</addClasspath>
                     <classpathPrefix>./lib/</classpathPrefix>

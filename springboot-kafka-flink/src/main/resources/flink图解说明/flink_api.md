@@ -535,6 +535,7 @@ class MyKeyedProcessFunction extends KeyedProcessFunction[String, WaterSensor, S
     }
 ```
 ##4.Sink
+
 ![](java6-1598922851-2.png)
 Sink有下沉的意思，在Flink中所谓的Sink其实可以表示为将数据存储起来的意思，也可以将范围扩大，表示将处理完的数据发送到指定的存储系统的输出操作
 

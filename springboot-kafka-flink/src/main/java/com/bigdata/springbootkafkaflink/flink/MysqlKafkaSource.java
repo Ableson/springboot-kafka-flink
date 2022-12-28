@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.bigdata.springbootkafkaflink.flinkTrigger.CountWithTimeoutTrigger;
 import com.bigdata.springbootkafkaflink.pojo.User;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
@@ -20,12 +19,15 @@ import org.apache.flink.streaming.api.datastream.SplitStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -59,8 +61,10 @@ import java.util.Properties;
  * Side OutPut替代split分流-->https://blog.csdn.net/weixin_42642502/article/details/106586255
  */
 @Component
-@Slf4j
+//@Slf4j
 public class MysqlKafkaSource {
+
+    private static final Logger log = LoggerFactory.getLogger(MysqlKafkaSource.class);
 
     @Value("${kafka.servers}")
     private String kafkaServer;
@@ -236,7 +240,8 @@ public class MysqlKafkaSource {
         //=↑=分组=↑=
         //=↑=分组=↑=
         //对前10s内的输入数据流超过10条，提交一次 trigger = singleOutputStreamOperator.keyBy("age").sum("age").timeWindowAll(Time.seconds(10))
-        AllWindowedStream<User, TimeWindow> trigger = reduce.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
+//        AllWindowedStream<User, TimeWindow> trigger = reduce.timeWindowAll(Time.seconds(10)).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
+        AllWindowedStream<User, TimeWindow> trigger = reduce.windowAll(TumblingProcessingTimeWindows.of(Time.seconds(10))).trigger(new CountWithTimeoutTrigger<>(3, TimeCharacteristic.ProcessingTime));
         SingleOutputStreamOperator<List<User>> apply = trigger.apply(new AllWindowFunction<User, List<User>, TimeWindow>() {
             @Override
             public void apply(TimeWindow timeWindow, Iterable<User> iterable, Collector<List<User>> collector) {
@@ -248,7 +253,7 @@ public class MysqlKafkaSource {
             }
         });
         //写入数据库
-        apply.addSink(new MysqlSinkMultiparty());
+        apply.addSink(new MysqlSinkMultiparty()).name("mysql-31-sink");
         //启动任务
         startTask(env);
     }
